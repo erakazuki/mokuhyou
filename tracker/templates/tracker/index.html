@@ -1,0 +1,39 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}ホーム - 筋トレ進捗{% endblock %}
+
+{% block content %}
+<div class="index-page">
+  <h1>筋トレ進捗を共有しよう</h1>
+  <p class="lead">カレンダーを作成してURLを共有するか、相手から受け取ったURLで参加してください。</p>
+
+  <div class="card-grid">
+    <div class="card">
+      <h2>新しいカレンダーを作成</h2>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="create">
+        <div class="form-group">
+          <label for="name">カレンダー名</label>
+          <input type="text" id="name" name="name" value="筋トレカレンダー" class="input">
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">作成する</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>共有URLで参加</h2>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="join">
+        <div class="form-group">
+          <label for="slug">共有URL（末尾のコード）</label>
+          <input type="text" id="slug" name="slug" placeholder="例: AbCdEfGhIjKl" class="input" required>
+          <p class="help-text">相手から共有されたURLの最後の部分を入力してください</p>
+        </div>
+        <button type="submit" class="btn btn-secondary btn-block">参加する</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

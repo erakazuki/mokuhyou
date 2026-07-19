@@ -1,0 +1,43 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}目標設定 - {{ room.name }}{% endblock %}
+
+{% block nav %}
+<a href="{% url 'calendar' slug=room.slug %}" class="nav-link">カレンダー</a>
+<a href="{% url 'goals' slug=room.slug %}" class="nav-link active">目標設定</a>
+{% endblock %}
+
+{% block content %}
+<div class="goals-page">
+  <h1>目標設定</h1>
+  <p class="lead">1週間に何回筋トレするかを設定しましょう。</p>
+
+  <div class="card">
+    <h2>あなたの目標</h2>
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="id_weekly_target">{{ form.weekly_target.label }}</label>
+        {{ form.weekly_target }}
+        <p class="help-text">1〜7 の範囲で設定してください</p>
+      </div>
+      <button type="submit" class="btn btn-primary">保存</button>
+    </form>
+  </div>
+
+  {% if all_goals %}
+  <div class="card">
+    <h2>メンバーの目標</h2>
+    <ul class="goal-list">
+      {% for g in all_goals %}
+      <li>
+        <strong>{{ g.user.username }}</strong>
+        {% if g.user == user %}（自分）{% endif %}
+        — 週 {{ g.weekly_target }} 回
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

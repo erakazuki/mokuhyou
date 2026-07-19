@@ -1,0 +1,90 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}{{ room.name }} - 筋トレ進捗{% endblock %}
+
+{% block nav %}
+<a href="{% url 'calendar' slug=room.slug %}" class="nav-link active">カレンダー</a>
+<a href="{% url 'goals' slug=room.slug %}" class="nav-link">目標設定</a>
+{% endblock %}
+
+{% block content %}
+<div class="calendar-page">
+  <div class="calendar-header">
+    <div>
+      <h1>{{ room.name }}</h1>
+      <p class="share-url">
+        共有URL:
+        <code id="share-url">{{ share_url }}</code>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="copyUrl()">コピー</button>
+      </p>
+    </div>
+    <div class="goal-badge">
+      あなたの目標: 週 <strong>{{ goal.weekly_target }}</strong> 回
+    </div>
+  </div>
+
+  {% if legend %}
+  <div class="legend">
+    {% for item in legend %}
+    <span class="legend-item">
+      <span class="legend-color" style="background: {{ item.color }}"></span>
+      {{ item.username }}{% if item.is_me %}（自分）{% endif %}
+    </span>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="calendar-nav">
+    <a href="?year={{ prev_year }}&month={{ prev_month }}" class="btn btn-ghost">← 前月</a>
+    <h2>{{ year }}年 {{ month_name }}</h2>
+    <a href="?year={{ next_year }}&month={{ next_month }}" class="btn btn-ghost">次月 →</a>
+  </div>
+
+  <table class="calendar">
+    <thead>
+      <tr>
+        {% for label in weekday_labels %}
+        <th>{{ label }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for week in calendar_weeks %}
+      <tr>
+        {% for cell in week %}
+        <td class="{% if not cell %}empty{% endif %}">
+          {% if cell %}
+          {% if cell.is_future %}
+          <div class="day-cell future">
+            <span class="day-num">{{ cell.day }}</span>
+          </div>
+          {% else %}
+          <form method="post" action="{% url 'toggle_workout' slug=room.slug %}" class="day-form">
+            {% csrf_token %}
+            <input type="hidden" name="date" value="{{ cell.date }}">
+            <button type="submit"
+              class="day-cell {% if cell.has_workout %}has-workout{% endif %} {% if cell.mine %}mine{% endif %} {% if cell.is_today %}today{% endif %}"
+              style="{% if cell.colors %}--workout-color: {{ cell.colors.0 }};{% if cell.colors|length > 1 %} --workout-color-2: {{ cell.colors.1 }};{% endif %}{% endif %}"
+              title="クリックで記録の ON/OFF">
+              <span class="day-num">{{ cell.day }}</span>
+            </button>
+          </form>
+          {% endif %}
+          {% endif %}
+        </td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <p class="calendar-hint">日付をクリックすると筋トレ記録の ON/OFF を切り替えられます。</p>
+</div>
+
+<script>
+function copyUrl() {
+  const url = document.getElementById('share-url').textContent;
+  navigator.clipboard.writeText(url).then(() => alert('URLをコピーしました'));
+}
+</script>
+{% endblock %}

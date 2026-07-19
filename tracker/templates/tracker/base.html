@@ -1,0 +1,38 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}筋トレ進捗{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'tracker/css/style.css' %}">
+</head>
+<body>
+  <header class="header">
+    <div class="container header-inner">
+      <a href="{% url 'index' %}" class="logo">💪 筋トレ進捗</a>
+      {% if user.is_authenticated %}
+      <nav class="nav">
+        {% block nav %}{% endblock %}
+        <span class="username">{{ user.username }}</span>
+        <form method="post" action="{% url 'logout' %}" class="logout-form">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-ghost">ログアウト</button>
+        </form>
+      </nav>
+      {% endif %}
+    </div>
+  </header>
+
+  <main class="container main">
+    {% if messages %}
+    <ul class="messages">
+      {% for message in messages %}
+      <li class="message message-{{ message.tags }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>
